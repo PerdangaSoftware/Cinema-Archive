@@ -1702,24 +1702,16 @@
 
   function formatPoster(url) {
     if (!url) return '';
-    if (url.includes('UX380') || url.includes('UX400') || url.includes('UX500') || url.includes('UX600')) {
-      return url;
-    }
-    return url.replace(/\._V1_.*?\.jpg/i, '._V1_QL75_UX380_CR0,0,380,562_.jpg');
+    return url.replace(/\._V1_.*?\.jpg/i, '._V1_FMjpg_UX500_.jpg');
   }
 
-  function handlePosterError(img, rawUrl) {
+  function handlePosterError(img) {
     if (!img) return;
     const retryCount = Number(img.dataset.retry || 0);
-    if (retryCount === 0 && rawUrl && img.src !== rawUrl) {
+    if (retryCount === 0) {
       img.dataset.retry = '1';
-      img.src = rawUrl;
-      return;
-    }
-    if (retryCount === 1) {
-      img.dataset.retry = '2';
       setTimeout(() => {
-        const clean = (rawUrl || img.src).split('?')[0];
+        const clean = img.src.split('?')[0];
         img.src = clean + (clean.includes('?') ? '&' : '?') + 'retry=' + Date.now();
       }, 1000);
       return;
@@ -1997,7 +1989,6 @@
       const genres = escapeHtml(m.Genres || 'Drama');
       const rawPoster = m.Poster || '';
       const posterSrc = escapeHtml(formatPoster(rawPoster));
-      const safeRawPoster = escapeHtml(rawPoster);
       const isPriority = idx < 8;
 
       let statusBadge = '';
@@ -2023,7 +2014,7 @@
         posterHtml = `
           <img src="${posterSrc}" alt="${title}" ${isPriority ? 'loading="eager" fetchpriority="high"' : 'loading="lazy" decoding="async"'} referrerpolicy="no-referrer" class="poster-img"
                onload="this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.add('loaded');"
-               onerror="handlePosterError(this, '${safeRawPoster}')">
+               onerror="handlePosterError(this)">
           <div class="poster-fallback" style="display: none;">
             <div class="poster-fallback-glyph">&#127916;</div>
             <span class="poster-fallback-title">${title}</span>
