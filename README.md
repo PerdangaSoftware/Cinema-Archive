@@ -4,9 +4,6 @@
 
 Personal curated cinema archive, watchlist, and ratings management system.
 
-- Live: https://perdangasoftware.github.io/cinema-archive/
-- Repository: https://github.com/PerdangaSoftware/Cinema-Archive
-
 ## Features
 
 - Sections: Watchlist, Favorites, Ready to Watch, Coming Soon, Watched.
