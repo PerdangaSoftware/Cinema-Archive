@@ -1,13 +1,13 @@
 // ==UserScript==
 // @name         Cinema Archive — IMDb Sync
-// @namespace    https://github.com/PerdangaSoftware/cinema-archive
+// @namespace    https://github.com/PerdangaSoftware/Cinema-Archive
 // @version      2.2.0
 // @description  Синхронизирует Watchlist, Watched и оценки (1–10) с IMDb в Cinema Archive по нажатию кнопки.
 // @author       Roman Zhdanov
 // @match        https://www.imdb.com/*
 // @match        https://m.imdb.com/*
-// @updateURL    https://raw.githubusercontent.com/PerdangaSoftware/cinema-archive/main/userscript/cinema-archive-imdb-sync.user.js
-// @downloadURL  https://raw.githubusercontent.com/PerdangaSoftware/cinema-archive/main/userscript/cinema-archive-imdb-sync.user.js
+// @updateURL    https://raw.githubusercontent.com/PerdangaSoftware/Cinema-Archive/main/userscript/cinema-archive-imdb-sync.user.js
+// @downloadURL  https://raw.githubusercontent.com/PerdangaSoftware/Cinema-Archive/main/userscript/cinema-archive-imdb-sync.user.js
 // @grant        GM_getValue
 // @grant        GM_setValue
 // @grant        GM_deleteValue
@@ -25,7 +25,7 @@
 (function () {
   'use strict';
 
-  const REPO = 'PerdangaSoftware/cinema-archive';
+  const REPO = 'PerdangaSoftware/Cinema-Archive';
   const WORKFLOW_FILE = 'sync.yml';
   const DEFAULT_IMDB_USER_ID = 'p.bfyntw4ig4xmx4kpbpecvzehwa';
 
