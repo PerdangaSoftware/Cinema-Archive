@@ -479,12 +479,25 @@
     box-shadow: 0 0 0 1px rgba(212, 163, 115, 0.55), 0 22px 42px -10px rgba(212, 163, 115, 0.38);
   }
 
+  @keyframes posterShimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
   .poster-container {
     position: relative;
     width: 100%;
     aspect-ratio: 2 / 3;
-    background: #0d0d0e;
+    background: linear-gradient(90deg, #0e0e11 0%, #1c1c24 50%, #0e0e11 100%);
+    background-size: 200% 100%;
+    animation: posterShimmer 2s ease-in-out infinite;
     overflow: hidden;
+  }
+
+  .poster-container.loaded,
+  .poster-container.has-error {
+    animation: none;
+    background: #0d0d0e;
   }
 
   .poster-img {
@@ -493,8 +506,12 @@
     object-fit: cover;
     object-position: center;
     display: block;
-    background: #0d0d0e;
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity: 0;
+    transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .poster-img.loaded {
+    opacity: 1;
   }
 
   .film-card:hover .poster-img {
@@ -508,16 +525,23 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 24px;
+    padding: 24px 20px;
     text-align: center;
-    background: var(--bg-accent);
+    background: radial-gradient(circle at center, #1c1c24 0%, #111115 100%);
+    border: 1px solid var(--border-light);
+  }
+
+  .poster-fallback-glyph {
+    font-size: 28px;
+    opacity: 0.35;
+    margin-bottom: 12px;
   }
 
   .poster-fallback-title {
     font-family: var(--font-serif);
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-weight: 600;
-    line-height: 1.2;
+    line-height: 1.25;
     color: var(--text-primary);
   }
 
@@ -1678,7 +1702,36 @@
 
   function formatPoster(url) {
     if (!url) return '';
-    return url.replace(/\._V1_.*?\.jpg/i, '._V1_FMjpg_UX600_.jpg');
+    if (url.includes('UX380') || url.includes('UX400') || url.includes('UX500') || url.includes('UX600')) {
+      return url;
+    }
+    return url.replace(/\._V1_.*?\.jpg/i, '._V1_QL75_UX380_CR0,0,380,562_.jpg');
+  }
+
+  function handlePosterError(img, rawUrl) {
+    if (!img) return;
+    const retryCount = Number(img.dataset.retry || 0);
+    if (retryCount === 0 && rawUrl && img.src !== rawUrl) {
+      img.dataset.retry = '1';
+      img.src = rawUrl;
+      return;
+    }
+    if (retryCount === 1) {
+      img.dataset.retry = '2';
+      setTimeout(() => {
+        const clean = (rawUrl || img.src).split('?')[0];
+        img.src = clean + (clean.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+      }, 1000);
+      return;
+    }
+    img.style.display = 'none';
+    if (img.parentElement) {
+      img.parentElement.classList.add('has-error');
+    }
+    const fallback = img.nextElementSibling;
+    if (fallback) {
+      fallback.style.display = 'flex';
+    }
   }
 
   function formatSpine(pos) {
@@ -1909,7 +1962,7 @@
       return;
     }
 
-    grid.innerHTML = list.map(m => {
+    grid.innerHTML = list.map((m, idx) => {
       const isFav = favoriteMovies.some(x => (m.Const && x.Const === m.Const) || x.Title === m.Title);
       const isToWatch = toWatchMovies.some(x => (m.Const && x.Const === m.Const) || x.Title === m.Title);
       const isWaiting = waitingMovies.some(x => (m.Const && x.Const === m.Const) || x.Title === m.Title);
@@ -1942,7 +1995,10 @@
         </div>
       `;
       const genres = escapeHtml(m.Genres || 'Drama');
-      const posterSrc = escapeHtml(formatPoster(m.Poster || ''));
+      const rawPoster = m.Poster || '';
+      const posterSrc = escapeHtml(formatPoster(rawPoster));
+      const safeRawPoster = escapeHtml(rawPoster);
+      const isPriority = idx < 8;
 
       let statusBadge = '';
       if (isWatched) {
@@ -1965,9 +2021,11 @@
       let posterHtml = '';
       if (posterSrc) {
         posterHtml = `
-          <img src="${posterSrc}" alt="${title}" loading="lazy" referrerpolicy="no-referrer" class="poster-img"
-               onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+          <img src="${posterSrc}" alt="${title}" ${isPriority ? 'loading="eager" fetchpriority="high"' : 'loading="lazy" decoding="async"'} referrerpolicy="no-referrer" class="poster-img"
+               onload="this.classList.add('loaded'); if(this.parentElement) this.parentElement.classList.add('loaded');"
+               onerror="handlePosterError(this, '${safeRawPoster}')">
           <div class="poster-fallback" style="display: none;">
+            <div class="poster-fallback-glyph">&#127916;</div>
             <span class="poster-fallback-title">${title}</span>
             ${spine ? `<span class="poster-fallback-spine">${escapeHtml(spine)}</span>` : ''}
           </div>
@@ -1975,6 +2033,7 @@
       } else {
         posterHtml = `
           <div class="poster-fallback">
+            <div class="poster-fallback-glyph">&#127916;</div>
             <span class="poster-fallback-title">${title}</span>
             ${spine ? `<span class="poster-fallback-spine">${escapeHtml(spine)}</span>` : ''}
           </div>
