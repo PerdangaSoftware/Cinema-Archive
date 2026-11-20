@@ -116,7 +116,8 @@
   .nav-links {
     display: flex;
     align-items: center;
-    gap: 28px;
+    gap: 22px;
+    flex-wrap: wrap;
   }
 
   .nav-item {
@@ -1513,6 +1514,8 @@
   <nav class="nav-links">
     <a href="#collection" class="nav-item active" id="nav-all" onclick="setTab('all')">Watchlist</a>
     <a href="#collection" class="nav-item" id="nav-favorites" onclick="setTab('favorites')">★ Favorites</a>
+    <a href="#collection" class="nav-item" id="nav-towatch" onclick="setTab('towatch')">Ready to Watch</a>
+    <a href="#collection" class="nav-item" id="nav-waiting" onclick="setTab('waiting')">Coming Soon</a>
     <a href="#collection" class="nav-item" id="nav-watched" onclick="setTab('watched')">Watched</a>
     <a href="https://www.imdb.com/user/p.bfyntw4ig4xmx4kpbpecvzehwa?ref_=ext_shr_lnk" target="_blank" rel="noopener noreferrer" class="nav-item" title="Open Roman's Public IMDb Profile">IMDb Profile &nearr;</a>
     <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()">Theme: Dark</button>
@@ -1531,6 +1534,10 @@
 
       <div class="hero-metrics">
         <div class="metric">
+          <span class="metric-val" id="metric-all">98</span>
+          <span class="metric-lbl">Watchlist</span>
+        </div>
+        <div class="metric">
           <span class="metric-val" id="metric-favorites">25</span>
           <span class="metric-lbl">Favorites</span>
         </div>
@@ -1545,10 +1552,6 @@
         <div class="metric">
           <span class="metric-val" id="metric-watched">173</span>
           <span class="metric-lbl">Watched</span>
-        </div>
-        <div class="metric">
-          <span class="metric-val" id="metric-all">98</span>
-          <span class="metric-lbl">In Watchlist</span>
         </div>
       </div>
 
